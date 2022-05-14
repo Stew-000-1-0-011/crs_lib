@@ -56,14 +56,13 @@ namespace CRSLib
                 // 戻り値のbool型の値が構築されてからlockのデストラクタが呼ばれる(はず)
             }
 
-            /// TODO: 最後の状態が残ってしまっている。
             bool is_pushed_up(const Buttons::Enum button, const ros::Duration& interval = ros::Duration()) noexcept
             {
                 std::shared_lock lock{shared_mtx};
 
-                while(interval.isZero() || !buttons_up[button].empty())
+                while(!buttons_up[button].empty())
                 {
-                    if(ros::Time::now() - buttons_up[button].front() < interval)
+                    if(interval.isZero() || ros::Time::now() - buttons_up[button].front() < interval)
                     {
                         buttons_up[button].pop();
                         return true;
