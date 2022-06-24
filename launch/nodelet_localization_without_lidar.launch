@@ -1,0 +1,10 @@
+<launch>
+
+  <arg name="manager_name" default="nodelet_manager" />
+
+  <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen"/>
+
+  <rosparam command="load" file="$(find crs_lib)/launch/localization_without_lidar_test_config.yaml"/>
+  <node pkg="nodelet" type="nodelet" name="localization_without_lidar" args="load crs_lib/NodeletLocalizationWithoutLidar $(arg manager_name)" />
+
+</launch>

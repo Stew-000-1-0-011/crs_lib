@@ -1,0 +1,4 @@
+localization_without_lidar:
+  broadcast_freq: 1000.0
+  odom_frame_id: "unfixed_odom"
+  world_frame_id: "world"

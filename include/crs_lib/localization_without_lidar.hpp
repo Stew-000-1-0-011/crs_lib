@@ -138,10 +138,10 @@ namespace CRSLib
                 std::optional<StewXmlRpc> node_ns = get_param(nh, "localization_without_lidar");
 
                 odom_frame_id = read_param<std::string>(node_ns, "odom_frame_id");
-                assert_param(odom_frame_id, odom_frame_id.empty(), "odom", "odom_frame_id");
+                assert_param(odom_frame_id, !odom_frame_id.empty(), "odom", "odom_frame_id");
 
                 world_frame_id = read_param<std::string>(node_ns, "world_frame_id");
-                assert_param(world_frame_id, world_frame_id.empty(), "world", "world_frame_id");
+                assert_param(world_frame_id, !world_frame_id.empty(), "world", "world_frame_id");
 
                 broadcast_freq = read_param<double>(node_ns, "broadcast_freq");
                 assert_param(broadcast_freq, broadcast_freq > 0, 1000, "broadcast_freq");

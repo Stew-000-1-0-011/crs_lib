@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   geometry_msgs
+  tf2
+  tf2_ros
   can_plugins
 )
 
@@ -108,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES crs_lib
- CATKIN_DEPENDS roscpp std_msgs geometry_msgs can_plugins
+ CATKIN_DEPENDS roscpp std_msgs geometry_msgs tf2 tf2_ros can_plugins
 #  DEPENDS system_lib
 )
 
@@ -162,13 +164,13 @@ target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
-# add_executable(localization_without_lidar
-#   src/localization_without_lidar.cpp
-# )
+add_executable(localization_without_lidar
+  src/localization_without_lidar.cpp
+)
 
-# target_link_libraries(localization_without_lidar
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(localization_without_lidar
+  ${catkin_LIBRARIES}
+)
 
 add_executable(hoge
   src/hoge.cpp
