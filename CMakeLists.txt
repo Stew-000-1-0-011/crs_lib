@@ -1,3 +1,5 @@
+include(MyPaths.cmake)
+
 cmake_minimum_required(VERSION 3.0.2)
 project(crs_lib)
 
@@ -10,6 +12,7 @@ add_compile_options(-std=c++2a -g -O3 -Wall -Wextra -pedantic-errors -fconcepts)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  geometry_msgs
   can_plugins
 )
 
@@ -105,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES crs_lib
- CATKIN_DEPENDS roscpp std_msgs can_plugins
+ CATKIN_DEPENDS roscpp std_msgs geometry_msgs can_plugins
 #  DEPENDS system_lib
 )
 
@@ -117,7 +120,8 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 include
-${catkin_INCLUDE_DIRS}
+ ${STEWLIB_PATH}
+ ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -149,6 +153,30 @@ ${catkin_INCLUDE_DIRS}
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+add_library(${PROJECT_NAME}
+  src/nodelets/localization_without_lidar.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
+# add_executable(localization_without_lidar
+#   src/localization_without_lidar.cpp
+# )
+
+# target_link_libraries(localization_without_lidar
+#   ${catkin_LIBRARIES}
+# )
+
+add_executable(hoge
+  src/hoge.cpp
+)
+
+target_link_libraries(hoge
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

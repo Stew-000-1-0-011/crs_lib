@@ -15,34 +15,31 @@ static_assert(sizeof(std::byte) == sizeof(std::uint8_t), "This program can't wor
 
 namespace CRSLib
 {
-    namespace
-    {
-        template<class RawData>
-        struct CanDataConvertor;
+    template<class RawData>
+    struct CanDataConvertor;
 
-        template<class RawData>
+    template<class RawData>
 #ifdef __cpp_concepts
-        requires std::is_arithmetic_v<RawData> || std::is_enum_v<RawData>
+    requires std::is_arithmetic_v<RawData> || std::is_enum_v<RawData>
 #endif
-        struct CanDataConvertor<RawData> final
+    struct CanDataConvertor<RawData> final
+    {
+        static constexpr StewLib::Serialize<RawData, 8> convert(const StewLib::low_cost_ref_val_t<RawData> raw_data) noexcept
         {
-            static constexpr StewLib::Serialize<RawData, 8> convert(const StewLib::low_cost_ref_val_t<RawData> raw_data) noexcept
-            {
-                StewLib::ReverseBuffer<RawData> reverse_buffer = raw_data;
-                reverse_buffer.reverse();
+            StewLib::ReverseBuffer<RawData> reverse_buffer = raw_data;
+            reverse_buffer.reverse();
 
-                // RawDataが算術型or列挙型だからできる。
-                return {static_cast<RawData>(reverse_buffer)};
-            }
+            // RawDataが算術型or列挙型だからできる。
+            return {static_cast<RawData>(reverse_buffer)};
+        }
 
-            static constexpr RawData deconvert(const StewLib::low_cost_ref_val_t<StewLib::Serialize<RawData, 8>> serialized_data) noexcept
-            {
-                StewLib::ReverseBuffer<RawData> reverse_buffer;
-                std::memcpy(reverse_buffer.buffer, serialized_data.chunks, sizeof(RawData));
-                reverse_buffer.reversed();
+        static constexpr RawData deconvert(const StewLib::low_cost_ref_val_t<StewLib::Serialize<RawData, 8>> serialized_data) noexcept
+        {
+            StewLib::ReverseBuffer<RawData> reverse_buffer;
+            std::memcpy(reverse_buffer.buffer, serialized_data.chunks, sizeof(RawData));
+            reverse_buffer.reversed();
 
-                return {reverse_buffer};
-            }
-        };
-    }
+            return {reverse_buffer};
+        }
+    };
 }

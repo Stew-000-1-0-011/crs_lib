@@ -9,29 +9,26 @@
 
 namespace CRSLib
 {
-    namespace
-    {
-        template<class RawData>
+    template<class RawData>
 #ifdef __cpp_concepts
-        requires std::is_arithmetic_v<RawData> || std::is_enum_v<RawData>
+    requires (sizeof(RawData) <= 8) && (std::is_arithmetic_v<RawData> || std::is_enum_v<RawData>)
 #endif
-        struct DefaultCanBuffer final
+    struct DefaultCanBuffer final
+    {
+        RawData value{};
+
+        bool push(const can_plugins::Frame::ConstPtr& frame_p) noexcept
         {
-            RawData value{};
+            std::memcpy(&value, &frame_p->data[0], sizeof(RawData));
+            return true;
+        }
 
-            bool push(const can_plugins::Frame::ConstPtr& frame_p) noexcept
-            {
-                std::memcpy(&value, &frame_p->data[0], sizeof(RawData));
-                return true;
-            }
+        RawData get_value() const noexcept
+        {
+            return value;
+        }
 
-            RawData get_value() const noexcept
-            {
-                return value;
-            }
-
-            void clear() const noexcept
-            {}
-        };
-    }
+        void clear() const noexcept
+        {}
+    };
 }

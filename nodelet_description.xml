@@ -1,0 +1,10 @@
+<library path="lib/libcrs_lib">
+
+  <class name="crs_lib/NodeletLocalizationWithoutLidar"
+     type="OneUnitRobocon2022::NodeletLocalizationWithoutLidar"
+     base_class_type="nodelet::Nodelet">
+    <description>
+    </description>
+  </class>
+
+</library>

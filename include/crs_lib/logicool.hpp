@@ -14,7 +14,6 @@ CRSLib::JoyToKEyButtonのon_updateは消すべきかもしれない。
 #pragma once
 
 #include <cstdint>
-#include <atomic>
 
 #include <sensor_msgs/Joy.h>
 
@@ -22,47 +21,44 @@ CRSLib::JoyToKEyButtonのon_updateは消すべきかもしれない。
 
 namespace CRSLib
 {
-    namespace
+    struct LogicoolXInputKeyMap final
     {
-        struct LogicoolXInputKeyMap final
+        struct Axes final
         {
-            struct Axes final
+            enum Enum : std::uint8_t
             {
-                enum Enum : std::uint8_t
-                {
-                    l_stick_LR = 0,
-                    l_stick_UD,
-                    l_trigger,
-                    r_stick_LR,
-                    r_stick_UD,
-                    r_trigger,
-                    cross_LR,
-                    cross_UD,
+                l_stick_LR = 0,
+                l_stick_UD,
+                l_trigger,
+                r_stick_LR,
+                r_stick_UD,
+                r_trigger,
+                cross_LR,
+                cross_UD,
 
-                    N
-                };
-            };
-
-            struct Buttons final
-            {
-                enum Enum : std::uint8_t
-                {
-                    a = 0,
-                    b,
-                    x,
-                    y,
-                    lb,
-                    rb,
-                    back,
-                    start,
-                    l_push,
-                    r_push,
-
-                    N
-                };
+                N
             };
         };
 
-        using Logicool = JoyToKeyButton<LogicoolXInputKeyMap>;
-    }
+        struct Buttons final
+        {
+            enum Enum : std::uint8_t
+            {
+                a = 0,
+                b,
+                x,
+                y,
+                lb,
+                rb,
+                back,
+                start,
+                l_push,
+                r_push,
+
+                N
+            };
+        };
+    };
+
+    using Logicool = JoyToKeyButton<LogicoolXInputKeyMap>;
 }
