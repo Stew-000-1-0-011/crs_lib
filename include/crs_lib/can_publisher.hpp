@@ -80,9 +80,9 @@ namespace CRSLib
         template<class RawData>
         void publish(const std::uint32_t can_id, const StewLib::low_cost_ref_val_t<RawData> raw_data) const noexcept
         {
-            std_msgs::String msg;
-            msg.data = std::to_string(can_id) + ":" + std::to_string(raw_data);
-            non_can_pub.publish(msg);
+            std_msgs::StringPtr msg_ptr{new std_msgs::String};
+            msg_ptr->data = std::to_string(can_id) + ":" + std::to_string(raw_data);
+            non_can_pub.publish(msg_ptr);
         }
     };
 }

@@ -12,9 +12,11 @@ add_compile_options(-std=c++2a -g -O3 -Wall -Wextra -pedantic-errors -fconcepts)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  message_generation
   geometry_msgs
   tf2
   tf2_ros
+  tf2_geometry_msgs
   can_plugins
 )
 
@@ -51,12 +53,12 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+# Generate messages in the 'msg' folder
+add_message_files(
+  FILES
+  Trajectory.msg
+  Twist.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -72,11 +74,12 @@ find_package(catkin REQUIRED COMPONENTS
 #   Action2.action
 # )
 
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+# Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+  geometry_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -110,7 +113,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES crs_lib
- CATKIN_DEPENDS roscpp std_msgs geometry_msgs tf2 tf2_ros can_plugins
+ CATKIN_DEPENDS roscpp std_msgs geometry_msgs tf2 tf2_ros tf2_geometry_msgs can_plugins
 #  DEPENDS system_lib
 )
 
@@ -158,6 +161,7 @@ include
 
 add_library(${PROJECT_NAME}
   src/nodelets/localization_without_lidar.cpp
+  src/nodelets/carrot_local_planner.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -169,6 +173,14 @@ add_executable(localization_without_lidar
 )
 
 target_link_libraries(localization_without_lidar
+  ${catkin_LIBRARIES}
+)
+
+add_executable(carrot_local_planner
+  src/carrot_local_planner.cpp
+)
+
+target_link_libraries(carrot_local_planner
   ${catkin_LIBRARIES}
 )
 

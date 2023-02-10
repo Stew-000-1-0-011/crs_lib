@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <vector>
 #include <array>
 #include <queue>
@@ -7,9 +8,6 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
-
-#include "rosparam_util.hpp"
-#include "StewLib/circular_buffer.hpp"
 
 namespace CRSLib
 {
@@ -27,12 +25,14 @@ namespace CRSLib
         std::array<bool, Buttons::N> buttons{};
         std::array<std::queue<ros::Time>, Buttons::N> buttons_up{};
         std::array<std::queue<ros::Time>, Buttons::N> buttons_down{};
+        const std::size_t button_queue_size;
 
         ros::Subscriber joy_sub{};
 
     public:
         // ros::Subscriberの重複は一切検知しないよ。
-        JoyToKeyButton(ros::NodeHandle& nh, const char *const joy_topic_name, double frame_rate = 60) noexcept
+        JoyToKeyButton(ros::NodeHandle& nh, const char *const joy_topic_name, double frame_rate = 60, const std::size_t button_queue_size = 1):
+            button_queue_size{button_queue_size}
         {
             if(frame_rate <= 0)
             {
@@ -46,7 +46,7 @@ namespace CRSLib
             joy_sub = nh.subscribe<sensor_msgs::Joy>(joy_topic_name, 1, &JoyToKeyButton::sub_update, this);
         }
 
-        bool is_being_pushed(const Buttons::Enum button) const noexcept
+        bool is_being_pushed(const Buttons::Enum button) const
         {
             std::shared_lock lock{shared_mtx};
 
@@ -54,7 +54,7 @@ namespace CRSLib
             // 戻り値のbool型の値が構築されてからlockのデストラクタが呼ばれる(はず)
         }
 
-        bool is_pushed_up(const Buttons::Enum button, const ros::Duration& interval = ros::Duration()) noexcept
+        bool is_pushed_up(const Buttons::Enum button, const ros::Duration& interval = ros::Duration())
         {
             std::shared_lock lock{shared_mtx};
 
@@ -71,7 +71,7 @@ namespace CRSLib
             return false;
         }
 
-        bool is_pushed_down(const Buttons::Enum button, const ros::Duration& interval = ros::Duration()) noexcept
+        bool is_pushed_down(const Buttons::Enum button, const ros::Duration& interval = ros::Duration())
         {
             std::shared_lock lock{shared_mtx};
 
@@ -88,14 +88,14 @@ namespace CRSLib
             return false;
         }
 
-        float get_axe(const Axes::Enum axe) const noexcept
+        float get_axis(const Axes::Enum axe) const
         {
             std::shared_lock lock{shared_mtx};
 
             return axes[axe];
         }
 
-        auto& get_axes() const noexcept
+        auto& get_axes() const
         {
             std::shared_lock lock{shared_mtx};
 
@@ -103,7 +103,7 @@ namespace CRSLib
         }
 
     private:
-        void sub_update(const sensor_msgs::Joy::ConstPtr& joy_p) noexcept
+        void sub_update(const sensor_msgs::Joy::ConstPtr& joy_p)
         {
             std::lock_guard lock{shared_mtx};
 
@@ -131,8 +131,16 @@ namespace CRSLib
             {
                 const bool latest_button = joy_p->buttons[i];
 
-                if(!latest_button && buttons[i]) buttons_up[i].push(joy_p->header.stamp);
-                if(latest_button && !buttons[i]) buttons_down[i].push(joy_p->header.stamp);
+                if(!latest_button && buttons[i])
+                {
+                    if(buttons_up[i].size() > button_queue_size) buttons_up[i].pop();
+                    buttons_up[i].push(joy_p->header.stamp);
+                }
+                if(latest_button && !buttons[i])
+                {
+                    if(buttons_down[i].size() > button_queue_size) buttons_down[i].pop();
+                    buttons_down[i].push(joy_p->header.stamp);
+                }
                 buttons[i] = latest_button;
             }
         }

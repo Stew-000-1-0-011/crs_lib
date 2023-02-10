@@ -2,6 +2,7 @@
 ・なんでXmlRpcValueは内部のasStringやらasArrayやらを直接触らせてくれないんだろう。
 ・なんでtime.hをインクルードしているんだ？ctimeじゃダメなのか？？struct tmとか書きたくないんだが。
 てかC++ならもっと高級なのあったような...遅いから？メモリ食うから？
+それから、変換は必ず成功するものしか行えない。まあなんとかなるんじゃないかな。
 */
 
 #pragma once
@@ -96,7 +97,7 @@ namespace CRSLib
         }
 
         // std::size_tじゃなくてintでいいの？ -> そもそもoperator[]がintになってる
-        inline std::optional<StewXmlRpc> get_param(const std::optional<StewXmlRpc>& xml_opt, const int index) noexcept
+        inline std::optional<StewXmlRpc> get_param(const std::optional<StewXmlRpc>& xml_opt, const int index, bool supress_out_of_range_error = false) noexcept
         {
             if(!xml_opt.has_value())
             {
@@ -107,7 +108,7 @@ namespace CRSLib
                 ROS_ERROR("Stew: %s is not array.", xml_opt->param_name.c_str());
                 return std::nullopt;
             }
-            if(index >= xml_opt->xml.size())
+            if(index >= xml_opt->xml.size() && !supress_out_of_range_error)
             {
                 ROS_ERROR("Stew: out range access of %s.", xml_opt->param_name.c_str());
             }
@@ -142,16 +143,16 @@ namespace CRSLib
 #ifdef __cpp_lib_concepts
         requires Implement::RosparamUtilImp::is_xml_rpc_type<T>
 #endif
-        inline T xml_rpc_cast(const std::optional<StewXmlRpc>& xml_opt) noexcept
+        inline T xml_rpc_cast(const std::optional<StewXmlRpc>& xml_opt, const T& default_value = {}) noexcept
         {
             if(!xml_opt.has_value())
             {
-                return {};
+                return default_value;
             }
             else if(xml_opt->xml.getType() != Implement::RosparamUtilImp::type_enum<T>)
             {
                 ROS_ERROR("Stew: xml_rpc_cast is invaild. This type is different from %s.", xml_opt->param_name.c_str());
-                return {};
+                return default_value;
             }
             
             return static_cast<T>(xml_opt->xml);
