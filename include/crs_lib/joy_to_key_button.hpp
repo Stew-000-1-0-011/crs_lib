@@ -31,18 +31,9 @@ namespace CRSLib
 
     public:
         // ros::Subscriberの重複は一切検知しないよ。
-        JoyToKeyButton(ros::NodeHandle& nh, const char *const joy_topic_name, double frame_rate = 60, const std::size_t button_queue_size = 1):
+        JoyToKeyButton(ros::NodeHandle& nh, const char *const joy_topic_name, const std::size_t button_queue_size = 1):
             button_queue_size{button_queue_size}
         {
-            if(frame_rate <= 0)
-            {
-                frame_rate = 60;
-                ROS_ERROR(
-                    "Stew: JoyToKeyButton::JoyToKeyButton(ros::NodeHandle&, const double):"
-                    "frame_rate must be positive. The value is set by default 60."
-                );
-            }
-
             joy_sub = nh.subscribe<sensor_msgs::Joy>(joy_topic_name, 1, &JoyToKeyButton::sub_update, this);
         }
 
