@@ -17,8 +17,6 @@
 
 #include <ros/ros.h>
 
-#include "StewLib/judge_lower_cost_than_ref.hpp"
-
 namespace CRSLib
 {
     namespace RosparamUtil
@@ -81,7 +79,9 @@ namespace CRSLib
             std::string param_name{};
         };
 
-        inline std::optional<StewXmlRpc> get_param(const ros::NodeHandle& nh, const std::string& key) noexcept
+        using Param = std::optional<StewXmlRpc>;
+
+        inline Param get_param(const ros::NodeHandle& nh, const std::string& key) noexcept
         {
             XmlRpc::XmlRpcValue xml{};
             try
@@ -97,7 +97,7 @@ namespace CRSLib
         }
 
         // std::size_tじゃなくてintでいいの？ -> そもそもoperator[]がintになってる
-        inline std::optional<StewXmlRpc> get_param(const std::optional<StewXmlRpc>& xml_opt, const int index, bool supress_out_of_range_error = false) noexcept
+        inline Param get_param(const Param& xml_opt, const int index, bool supress_out_of_range_error = false) noexcept
         {
             if(!xml_opt.has_value())
             {
@@ -116,7 +116,7 @@ namespace CRSLib
             return StewXmlRpc{xml_opt->xml[index], xml_opt->param_name + "[" + std::to_string(index) + "]"};
         }
 
-        inline std::optional<StewXmlRpc> get_param(const std::optional<StewXmlRpc>& xml_opt, const auto& str) noexcept
+        inline Param get_param(const Param& xml_opt, const auto& str) noexcept
         {
             static_assert(Implement::RosparamUtilImp::is_string_like<decltype(str)>);
 
@@ -143,7 +143,7 @@ namespace CRSLib
 #ifdef __cpp_lib_concepts
         requires Implement::RosparamUtilImp::is_xml_rpc_type<T>
 #endif
-        inline T xml_rpc_cast(const std::optional<StewXmlRpc>& xml_opt, const T& default_value = {}) noexcept
+        inline T xml_rpc_cast(const Param& xml_opt, const T& default_value = {}) noexcept
         {
             if(!xml_opt.has_value())
             {
@@ -162,7 +162,7 @@ namespace CRSLib
 #ifdef __cpp_lib_concepts
         requires Implement::RosparamUtilImp::is_xml_rpc_type<T>
 #endif
-        inline T read_param(const std::optional<StewXmlRpc>& value, const auto& key) noexcept
+        inline T read_param(const Param& value, const auto& key) noexcept
         {
             return xml_rpc_cast<T>(get_param(value, key));
         }
